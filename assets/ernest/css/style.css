@@ -1,0 +1,22 @@
+html,
+body {
+    margin: 0;
+    overflow: hidden;
+    height: 100%;
+    background-color: black;
+}
+
+/* Scale canvas with resize attribute to full size */
+canvas {
+  position: absolute;
+  top: 50%;
+  margin-top: -810px;
+  left: 0;
+}
+
+img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  mix-blend-mode:color-burn;
+}

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Poster</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script type="text/javascript" src="assets/libs/paper-full.js"></script>
+  <script type="text/javascript" src="assets/libs/TweenMax.min.js"></script>
+  <script type="text/javascript" src="assets/js/paper-tween.js"></script>
+
+  <script src="assets/js/variables.js"></script>
+  <script type="text/paperscript" canvas="canvas">
+  settings.applyMatrix = false;
+
+  ////////////////// PAPERVAR//////////////////
+  var toCenter = paper.view.center;
+  var groupShadow = new Group();
+  var groupLight = new Group();
+  var groupMedium = new Group();
+  var groupText = new Group();
+  var groupNail = new Group();
+  var backshape;
+
+  var pathWord1 = PathItem.create(svgWord1);
+  var pathWord2 = PathItem.create(svgWord2);
+  var pathWord2B = PathItem.create(svgWord2B);
+  var pathWord2C = PathItem.create(svgWord2C);
+  var pathWord2D = PathItem.create(svgWord2D);
+
+  var pathNail1 = PathItem.create(svgNail1);
+  var pathNail2 = PathItem.create(svgNail2);
+  var pathNail3 = PathItem.create(svgNail3);
+  var pathNail4 = PathItem.create(svgNail4);
+  var pathNail5 = PathItem.create(svgNail5);
+  var path5;
+
+  var globalGroup;
+
+  ///COLORS///
+  var colors = [
+    new Color(227/255, 55/255, 64/255),
+    new Color(229/255, 37/255, 75/255),
+    new Color(230/255, 45/255, 49/255)
+  ];
+  /////////////////////////////////////////////
+
+  //HAND LOAD//
+  var svgHand = project.importSVG('assets/svg/hand.svg', function(item, svg) {
+    pathHand = item;
+    pathHand.position = new Point(view.center);
+    pathHand.fillColor = '#f7f8f9';
+
+    loaded();
+    ///Group////
+    globalGroup = new Group();
+    globalGroup.addChild(pathHand);
+    globalGroup.addChild(backshape);
+    globalGroup.addChild(groupLight);
+    globalGroup.addChild(groupMedium);
+    globalGroup.addChild(groupShadow);
+    globalGroup.clipped = true;
+    var groupNail = new Group();
+    groupNail.addChild(pathNail1);
+    groupNail.addChild(pathNail2);
+    groupNail.addChild(pathNail3);
+    groupNail.addChild(pathNail4);
+    groupNail.addChild(pathNail5);
+    ///////////
+    groupNail.set({
+      bound : [500,200],
+      position : [700,700],
+      strokeColor : 'black',
+      strokeCap : 'round',
+      strokeWidth : 1,
+    });
+    groupNail.children[0].set({
+      position : new Point(500,50)
+});
+groupNail.children[1].set({
+  position : new Point(700,200)
+});
+groupNail.children[2].set({
+  position : new Point(980,270)
+});
+groupNail.children[3].set({
+  position : new Point(740,1030)
+});
+groupNail.children[4].set({
+  position : new Point(1010,960)
+});
+    // var groupfinger = new Group();
+    // group.addChild(groupLight);
+    // group.addChild(groupMedium);
+    // group.addChild(groupShadow);
+    // groupfinger.clipped = true;
+
+  });
+  function loaded() {
+
+    backshape = new Shape.Ellipse({
+      center: toCenter,
+      radius: [650, 800],
+      fillColor: 'black',
+      shadowColor: 'red',
+      shadowBlur: 500
+    });
+    backshape.position.x -= offset;
+    backshape.shadowOffset = new Point(offset-20, 0);
+
+    ////////LIGHT///////
+    var light = new Shape.Ellipse({
+      center: toCenter,
+      radius: [400, 400],
+      fillColor: 'black',
+      // shadowColor: 'blue',
+      shadowColor: '#f1eacb',
+      shadowBlur: 200
+    });
+    light.position.x -= offset;
+    for (var i=0; i<8; i++){
+      var copyL = light.clone();
+      groupLight.addChild(light);
+    };
+    groupLight.children[0].set({
+      //green//
+      radius: [300, 350],
+      shadowOffset : new Point(offset-150,-10),
+    });
+    groupLight.children[1].set({
+      radius: [400, 200],
+      shadowOffset : new Point(offset,0),
+    });
+    groupLight.children[2].set({
+      radius: [200, 300],
+      shadowOffset : new Point(offset-40,300),
+    });
+    groupLight.children[3].set({
+      radius: [200, 300],
+      // shadowColor: 'green',
+      shadowOffset : new Point(offset+240,300),
+    });
+    groupLight.children[4].set({
+      radius: [400, 200],
+      // shadowColor: 'green',
+      shadowOffset : new Point(offset+240,-80),
+    });
+    groupLight.children[5].set({
+      radius: [400, 200],
+      // shadowColor: 'green',
+      shadowOffset : new Point(offset+240,-80),
+    });
+    groupLight.children[6].set({
+      radius: [90, 200],
+      shadowBlur : 150,
+      shadowOffset : new Point(offset-380,-900),
+      rotation : 15
+    });
+    groupLight.children[7].set({
+      radius: [90, 300],
+      shadowBlur : 130,
+      shadowOffset : new Point(offset-1000,-1700),
+      rotation : 47
+    });
+
+
+    ////////MEDIUM/////////
+    var medium = new Shape.Ellipse({
+      center: toCenter,
+      radius: [150, 150],
+      fillColor: 'black',
+      shadowColor: 'red',
+      // '#de3c39',
+      shadowBlur: 300
+    });
+    medium.position.x -= offset;
+
+    for (var i=0; i<8; i++){
+      var copyM = medium.clone();
+      groupMedium.addChild(medium);
+    };
+    groupMedium.children[0].set({
+      radius: [200, 300],
+      shadowOffset : new Point(offset+90,80),
+    });
+    groupMedium.children[1].set({
+      shadowOffset : new Point(offset,500),
+    });
+    groupMedium.children[2].set({
+      radius: [300, 100],
+      rotation : -3,
+      shadowOffset : new Point(offset,-500),
+    });
+    groupMedium.children[3].set({
+      radius: [150, 300],
+      rotation : -3,
+      shadowOffset : new Point(offset+500,100),
+    });
+    groupMedium.children[4].set({
+      radius: [150, 300],
+      rotation : -8,
+      shadowOffset : new Point(offset-550,100),
+    });
+    groupMedium.children[5].set({
+      radius: [70, 300],
+      rotation : -17,
+      shadowBlur : 230,
+      shadowOffset : new Point(offset-650,900),
+    });
+    groupMedium.children[6].set({
+      radius: [260, 50],
+      rotation : -36,
+      //  shadowColor : 'green',
+      shadowBlur : 100,
+      shadowOffset : new Point(offset+240,950),
+    });
+    groupMedium.children[7].set({
+      radius: [240, 50],
+      rotation : -13,
+      shadowBlur : 100,
+      shadowOffset : new Point(offset+280,180),
+    });
+
+    ////////OMBRE///////
+    var ombre = new Shape.Ellipse({
+      center: toCenter,
+      radius: [90, 200],
+      // shadowOffset :  new Point(offset+20, 0),
+      // rotate : 80,
+      fillColor: 'black',
+      shadowColor: [122/255, 43/255, 65/255], // '#54324d',
+      shadowBlur: 200
+    });
+
+    ombre.position.x -= offset;
+    for (var i=0; i<10; i++){
+      var copy = ombre.clone();
+      groupShadow.addChild(ombre);
+    };
+    groupShadow.children[0].set({
+      rotation : 10,
+      shadowOffset : new Point(offset+50,-140),
+    });
+    groupShadow.children[1].set({
+      rotation : -25,
+      shadowOffset : new Point(offset+50,1180),
+      radius: [70, 200],
+    });
+    groupShadow.children[2].set({
+      rotation : -20,
+      shadowOffset : new Point(offset-800,1180),
+      radius: [70, 200],
+    });
+    groupShadow.children[3].set({
+      shadowOffset : new Point(offset-40,790),
+      shadowBlur : 60,
+      radius: [200, 70],
+    });
+    groupShadow.children[4].set({
+      shadowOffset : new Point(offset-25,780),
+      shadowBlur : 60,
+      radius: [70, 70],
+    });
+    groupShadow.children[5].set({
+      rotation : -9,
+      shadowOffset : new Point(offset-630,800),
+      shadowBlur : 70,
+      radius: [90,380],
+    });
+    groupShadow.children[6].set({
+      rotation : 16,
+      shadowOffset : new Point(offset-350,290),
+      radius: [150, 70],
+      shadowBlur : 50,
+    });
+    groupShadow.children[7].set({
+      // rotation : 54,
+      shadowOffset : new Point(offset-300,+450),
+      shadowBlur : 70,
+      radius: [40,70],
+    });
+    //FINGER//
+    groupShadow.children[8].set({
+      rotation : -28,
+      shadowOffset : new Point(offset+300,800),
+      shadowBlur : 95,
+      radius: [130,40],
+    });
+    groupShadow.children[9].set({
+      rotation : -28,
+      shadowOffset : new Point(offset+180,560),
+      shadowBlur : 80,
+      radius: [180,30],
+    });
+
+    var groupText = new Group();
+    groupText.addChild(pathWord1);
+    groupText.addChild(pathWord2);
+    groupText.addChild(pathWord2B);
+    groupText.addChild(pathWord2C);
+    groupText.addChild(pathWord2D);
+    ///////////
+    console.log(groupText);
+    groupText.set({
+      bound : [500,200],
+      position : [910,1210],
+      strokeColor : 'black',
+      strokeCap : 'round',
+      strokeWidth : 1,
+    });
+
+
+    backshape.onFrame = function() {
+      //console.log(colors[targetIndex]);
+      var currentColor = colors[currentIndex] + (colors[targetIndex] - colors[currentIndex]) / totalStep * currentStep;
+      this.shadowColor = currentColor;
+      currentStep++;
+      if(currentStep == totalStep) {
+        currentStep = 0;
+        currentIndex++;
+        targetIndex++;
+        if(currentIndex == colors.length) {
+          currentIndex = 0;
+        }
+        if(targetIndex == colors.length) {
+          targetIndex = 0;
+        }
+      }
+    };
+
+    function fadeShadowColor(object, duration, color) {
+      var startColor = object.shadowColor;
+      var endColor = new Color(color);
+
+      function fadeShadowColorFrame(event) {
+        object.shadowColor = startColor + (endColor - startColor) * object.shadowColorFade;
+      }
+
+      object.shadowColorFade = 0; // "fake" property
+      object.on('frame', fadeShadowColorFrame);
+      var anim = object.tweenTo(duration, {
+        shadowColorFade: 1
+      }).then(function() {
+        object.tweenTo(duration, {
+          shadowColorFade: 0
+        }).then(function() {
+          object.off('frame', fadeShadowColorFrame);
+        });
+      });
+      return anim;
+    }
+
+    view.onMouseEnter = function (event){
+
+      var animshadow = fadeShadowColor(groupShadow, 1, 'blue');
+      // var animlight1 = fadeShadowColor(groupLight, 2, 'red');
+      var animlight2 = fadeShadowColor(groupLight.children[2], 4, 'green');
+      groupShadow.tweenTo(10, {
+        shadowBlur : 300
+      })
+        .then(function() {
+          console.log('amin2 finit')
+        })
+        /*
+        var animlight1 = groupLight.children[2].tweenTo(4,{
+          shadowColor : 'green',
+        })
+        */
+      };
+      console.log(groupLight.position.x);
+
+      view.onMouseMove = function (event){
+
+        if (groupLight.position.x <-1400){
+          //groupShadow.position.y += 10;
+          // groupShadow.position.y < 800 &&
+          isAbove=false;
+        }else if(groupLight.position.x > -900){
+          isAbove=true;
+          //groupShadow.position.y -= 10;
+          // groupShadow.position.y > 1500 &&
+        };
+          groupShadow.position.y = event.point.y;
+        if (!isAbove) {
+          groupLight.position.x += 15;
+        } else {
+          groupLight.position.x -= 15;
+        }
+
+      };
+
+      var targetZoom = 1;
+      var targetCenter = view.center;
+      view.initialCenter = view.center;
+      view.initialZoom   = view.zoom;
+      view.onClick = function(event) {
+        if(targetZoom == view.initialZoom) {
+          targetZoom = 3;
+        } else {
+          targetZoom = view.initialZoom;
+        }
+        if(targetCenter == view.initialCenter) {
+          targetCenter = event.point;
+        } else {
+          targetCenter = view.initialCenter;
+        }
+
+      }
+
+      view.onFrame = function() {
+        view.zoom += (targetZoom - view.zoom) * 0.1;
+        view.center += (targetCenter - view.center) * 0.1;
+      }
+      function setWorm(path,start,length){
+        path.dashArray = [length, path.length - length];
+        path.dashOffset = start;
+      };
+      pathWord1.onFrame = function (){
+        setWorm(pathWord1, start, length);
+        start += inc;
+        length += 1;
+      }
+      pathWord2.onFrame = function (){
+        setWorm(pathWord2, start, length);
+        start += inc;
+        length += 1;
+      }
+      pathWord2B.onFrame = function (){
+        setWorm(pathWord2B, start, length);
+        start += inc;
+        length += 1;
+      }
+      pathWord2C.onFrame = function (){
+        setWorm(pathWord2C, start, length);
+        start += inc;
+        length += 1;
+      }
+      pathWord2D.onFrame = function (){
+        setWorm(pathWord2D, start, length);
+        start += inc;
+        length += 1;
+      }
+    };
+
+
+
+    </script>
+  </head>
+  <body style="cursor: none;">
+    <canvas id="canvas" width="1080" height="1620" hidpi="off"></canvas>
+
+  </body>
+  </html>

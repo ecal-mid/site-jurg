@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Interpolation</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script type="text/javascript" src="assets/js/paper-full.js"></script>
+  <script type="text/paperscript" canvas="canvas">
+  new Path.Rectangle({
+    rectangle: view.bounds,
+    fillColor: 'black'
+  });
+
+  PathItem.prototype.interpolate = function(from, to, factor) {
+    var isPath = !this._children,
+    name = isPath ? '_segments' : '_children',
+    itemsFrom = from[name],
+    itemsTo = to[name],
+    items = this[name];
+    if (!itemsFrom || !itemsTo) {
+      throw new Error('Invalid operands in interpolate() call: ' +
+      from + ', ' + to);
+    }
+    var current = items.length,
+    length = Math.min(itemsFrom.length, itemsTo.length);
+    if (current < length) {
+      var ctor = isPath ? Segment : Path;
+      for (var i = current; i < length; i++) {
+        this[isPath ? 'add' : 'addChild'](new ctor());
+      }
+    } else if (current > length) {
+      this[isPath ? 'removeSegments' : 'removeChildren'](length, current);
+    }
+    for (var i = 0; i < length; i++) {
+      items[i].interpolate(itemsFrom[i], itemsTo[i], factor);
+    }
+    if (isPath) {
+      this.setClosed(from._closed);
+      this._changed(9);
+    }
+  };
+
+
+
+  // ============================================================
+
+
+  var rotationSpeed = 0.9;
+  var hue = 0;
+  var saturation = 0;
+  var countTotal = 60;
+  var useRasters = true;
+  var rotate = false;
+
+  // ============================================================
+
+  var groups = [];
+  for (var i = 0; i <= countTotal; i++) {
+    groups.push(new Group());
+  }
+
+  var time = 0;
+  view.onFrame = function(event) {
+    if (!rotate) {
+      time += event.delta;
+    }
+  }
+
+
+  function createInterpolation(letter, speed, angleAmount, delay) {
+    project.importSVG('assets/svg/' + letter + '.svg', function(item) {
+      // item.remove();
+
+      var start = item.children['start'];
+      var end = item.children['end'];
+      var line = item.children['line'];
+      console.log(start, end, line)
+      start.remove();
+      end.remove();
+
+      var handleIn = line.lastSegment.handleIn;
+      var angleIn = handleIn.angle;
+      var handleOut = line.firstSegment.handleOut;
+      var angleOut = handleOut.angle;
+
+      line.onFrame = function() {
+        // line.lastSegment.handleIn.angle += 2;
+        if (!rotate) {
+          handleIn.angle = angleIn + Math.sin(time + delay) * angleAmount;
+          handleOut.angle = angleOut + Math.cos(time + delay) * angleAmount;
+        }
+      }
+
+      // line.fullySelected = true;
+
+      for (var i = 0; i <= countTotal; i++) {
+        var group = groups[i];
+        var path = start instanceof CompoundPath ? new CompoundPath() : new Path();
+        var factor = i / countTotal;
+        path.interpolate(start, end, factor);
+        path.fillColor = {
+          hue: hue,
+          saturation: saturation,
+          brightness: factor
+        }
+        path.strokeColor = path.fillColor;
+        path.strokeWidth = (countTotal - i) * 8 + 10;
+        path.strokeJoin = 'round';
+
+        var shape = path;
+
+        if (useRasters) {
+          // var raster = path.rasterize(view.resolution / 4);
+          var raster = path.rasterize();
+          path.remove();
+          raster.pivot = [0, 0];
+          shape = raster;
+        }
+
+        group.addChild(shape);
+
+        shape.factor = factor;
+
+        shape.onFrame = function() {
+          if (rotate) {
+            this.rotation += speed;
+          } else {
+            var point = line.getPointAt(line.length * this.factor);
+            this.position = point;
+          }
+        }
+
+
+      }
+    });
+  }
+
+function createSVG(name, callback) {
+project.importSVG('assets/svg/' + name + '.svg', callback);
+}
+
+
+  createInterpolation('s', -rotationSpeed / 1.1, 60, 9);
+  createInterpolation('n', rotationSpeed / 1.1, 60, 2);
+  createInterpolation('o', rotationSpeed / 2, 10, 4);
+  createInterpolation('w', -rotationSpeed / 1, -30, 10);
+
+  createSVG('circle', function(item) {
+    item.onClick = function() {
+      rotate = !rotate;
+    }
+  });
+
+  </script>
+  </head>
+  <body>
+  <canvas id="canvas" width="1080" height="1620" hidpi="off"></canvas>
+  </body>
+  </html>

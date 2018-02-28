@@ -1,0 +1,15 @@
+html,
+body {
+    margin: 0;
+    height: 100%;
+    background-color: black;
+}
+
+/* Scale canvas with resize attribute to full size */
+canvas {
+  position: absolute;
+  top: 50%;
+  margin-top: -810px;
+  left: 0;
+  background-color: white;
+}

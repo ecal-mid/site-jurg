@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Tweeing with TweenMax.js</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script type="text/javascript" src="assets/js/paper-full.js"></script>
+  <script type="text/javascript" src="assets/js/TweenMax.min.js"></script>
+  <script type="text/javascript" src="assets/js/paper-tween.js"></script>
+  <script type="text/javascript" src="assets/js/matter.min.js"></script>
+
+
+  <script type="text/paperscript" canvas="canvas">
+
+
+  settings.applyMatrix = false;
+
+  new Path.Rectangle({
+    rectangle: view.bounds,
+    fillColor: "white"
+  });
+
+  project.importSVG('assets/svg/affiche 4.svg', {
+    expandShapes: true,
+    onLoad: init
+  });
+
+  var movements = {
+
+    //rond_triangle_haut_gauche
+
+    'triangle_violet': {
+      vector: new Point(0.1, 0.2),
+
+    },
+
+    'rond_rose': {
+      vector: new Point(-0.1, 0.2),
+
+    },
+
+    'barre_triangle_bleu': {
+      vector: new Point(0.1, -0.2),
+
+    },
+
+      // forme_milieu
+
+    'barre_vague_noir': {
+      vector: new Point(-0.1, 0.2)
+    },
+
+    'rectangle_vague_violet': {
+      vector: new Point(-0.1, -0.2)
+    },
+
+    'rond_vert': {
+      vector: new Point(-0.4, 0.1)
+    },
+
+    'rectangle_bleu_droite': {
+      vector: new Point(0.3, -0.1)
+    },
+
+    'demi_cercle_gris': {
+      vector: new Point(0.1, 0.2)
+    },
+
+    'demie_cercle_barre_noir': {
+      vector: new Point(0.1, 0.1)
+    },
+
+    'eclair_triangle': {
+      vector: new Point(0.1, 0.2)
+    },
+
+    'demi_cercle_jaune': {
+      vector: new Point(0.2, 0.1)
+    },
+
+    'carré_triangles_jaunes': {
+      vector: new Point(-0.3, 0.1)
+    },
+
+    'triangle_rose': {
+      vector: new Point(0.3, 0.1),
+
+    },
+
+    'triangle_bleu': {
+      vector: new Point(0.2, 0.2),
+
+    },
+
+    'rectangle_bas_violet': {
+      vector: new Point(-0.1, -0.1)
+    },
+
+    //eclair
+
+    'eclair_rouge': {
+      vector: new Point(-0.1, -0.2)
+    },
+
+    'eclair_vert': {
+      vector: new Point(0.1, -0.2)
+    }
+
+  };
+
+  var typo = {
+    'mitsukoshi': {
+      speed:0.2,
+      growth: 0.02,
+      delayed: true
+      //strokeColor: 'red'
+    },
+
+    'ecriture': {
+      speed: 0.1,
+      growth: 0.02
+    },
+
+    'logo': {
+      speed: 0.1,
+      growth: 0.02
+    },
+
+    'italia_1_': {
+      speed: 0.1,
+      growth: 0.02
+    },
+
+    'verticale': {
+      speed: 0.8,
+      growth: 0.06,
+      strokeColor : 'black'
+    }
+  };
+
+  var globalSpeed = 0;
+  var nervosity = 0;
+
+// mouvement des formes  dans l'affiche
+  function setupMovement(affiche, name) {
+    var entry = movements[name];
+    var item = affiche.getItem({ name: name });
+
+    item.initialPosition = item.position;
+    item.onFrame = function() {
+      if(resetPosition) {
+        item.position += (item.initialPosition - item.position) * 0.1;
+      }
+      if(!resetPosition) {
+        var vector = entry.vector * Math.random() * globalSpeed / 10
+        vector.angle += nervosity;
+        this.position += vector;
+      }
+      if(entry.rotation) {
+        this.rotation += entry.rotation * Math.random();
+      }
+
+    }
+
+    item.onMouseDrag = function(event) {
+      item.position += event.delta;
+    }
+
+    return item;
+  }
+
+  function showLine(path, start, length) {
+    path.dashArray = [length, path.length - length];
+    path.dashOffset = -start;
+  }
+
+// typo qui bouge
+  function setupTypo(affiche, name) {
+    var entry = typo[name];
+    var item = affiche.getItem({ name: name });
+    var paths = item.getItems({
+      class: PathItem
+    });
+
+    if(name == "mitsukoshi") console.log(paths);
+
+    item.onMouseEnter = function(event) {
+      var start = 0;
+      var length = 7;
+      item.fillColor = null;
+      item.strokeColor = 'black';
+
+      for (var i = 0; i < paths.length; i++) {
+        paths[i].on('frame', function() {
+          showLine(this, start, length);
+          start += entry.speed;
+          length += entry.growth;
+        });
+      }
+    }
+  }
+
+// motif qui bouge
+  function addPattern(item) {
+    var bounds = item.bounds;
+
+    var circle = new Path.Circle({
+      radius: 3,
+      fillColor: 'blue'
+    });
+    var group = new Group();
+    group.addChild(item.clone());
+    var definition = new SymbolDefinition(circle);
+    for(var i = 0; i < 500; i++) {
+      var instance = definition.place();
+      instance.position = bounds.point + Point.random() * bounds.size;
+      instance.scaling  = Point.random() * 0.5 + 0.5;
+      instance.rotation = Math.random() * 360;
+      while(!item.contains(instance.position)) {
+        instance.position = bounds.point + Point.random() * bounds.size;
+      }
+      group.addChild(instance);
+    }
+    group.clipped = true;
+    group.moveAbove(item);
+    group.onFrame = function() {
+      this.position = item.position;
+      for(var i = 1, l = this.children.length; i < l; i++) {
+        this.children[i].position += Point.random() - 0.5;
+      }
+    }
+  }
+
+
+// dessine le trait en continue
+
+  function addDrawingLine(item, target, name) {
+    var paths = item.getItems({
+      class: PathItem
+    });
+
+    var start = 0;
+    var length = 7;
+    item.fillColor = null;
+    //item.strokeColor = 'red';
+
+    var diff = item.position - target.position;
+
+    item.onFrame = function(event) {
+      this.position = target.position + diff;
+
+      for (var i = 0; i < paths.length; i++) {
+        // var length = paths[i].length;
+        paths[i].onFrame = function() {
+          showLine(this, start, length);
+          start += 2;
+          if(length < this.length / 1.5) length += 2;
+          if(start);
+        }
+      }
+    }
+  }
+
+// mouvement quand la souris bouge
+  var mouseMoveTimeout;
+  var mousePos;
+  var lastAngle = 0;
+  view.onMouseMove = function(event) {
+    mousePos = event.point;
+    var vector = event.delta;
+    if (vector) {
+      var speed = vector.length;
+      var angle = vector.angle;
+      if (speed > globalSpeed) {
+        globalSpeed = speed;
+      }
+      var angleDiff = Math.abs(lastAngle - angle);
+      if (angleDiff > nervosity) {
+        nervosity = angleDiff;
+      }
+      lastAngle = angle;
+    }
+  }
+
+  view.onFrame = function() {
+    globalSpeed *= 0.9;
+    nervosity *= 0.9;
+  }
+
+//position retour avec le rectangle
+  var resetPosition = false;
+  function init(affiche) {
+    affiche.fitBounds(view.bounds);
+
+    for (var name in movements) {
+      var item = setupMovement(affiche, name);
+      if(name == 'demi_cercle_gris') {
+        addPattern(item);
+      }
+    }
+
+    for (var name in typo) {
+      setupTypo(affiche, name);
+    }
+
+    var line = affiche.getItem({ name: "trait" });
+    var lightningBolt = affiche.getItem({ name: "eclair_triangle" });
+    addDrawingLine(line, lightningBolt, name);
+
+    var whiteRect = affiche.getItem({ name: "rectangle" });
+    whiteRect.onMouseEnter = function(event) {
+      resetPosition = true;
+    }
+    whiteRect.onMouseLeave = function(event) {
+      resetPosition = false;
+    }
+  }
+//************************************
+
+
+
+  </script>
+</head>
+<body style="background-color: #000">
+  <canvas id="canvas" width="1080" height="1620" hidpi="off"></canvas>
+</body>
+</html>

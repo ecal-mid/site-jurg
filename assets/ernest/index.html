@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>workshop</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <script type="text/javascript"src="./lib/paper-full.js"></script>
+  <script type="text/paperscript" canvas="canvas">
+
+//variables
+  var mainSquares = [];
+
+  for (var x = 0; x < 3; x++ ){
+    for (var y = 0; y < 4; y ++){
+      var main = new Path.Rectangle({
+          point: [(x*1080/3),(y*1620/4)],
+          size: [(1080/3),(1620/4)],
+          strokeWidth: 0,
+          strokeColor: 'black'
+      });
+      main.on('click', onclik);
+      main.on('mousemove',onmousemove);
+
+      mainSquares.push(main);
+      var middle = view.center;
+        }
+    }
+
+    for (var i = 0; i < mainSquares.length; i++) {
+      mainSquares[i].fillColor= {
+            gradient: {
+            stops: [['white',],['grey'],'black'],
+          },
+          origin:mainSquares[i].position,
+          destination:mainSquares[i].bounds
+        };
+    }
+
+  project.importSVG('svg/shades.svg', {
+    expandShapes: true,
+    onLoad: init
+  });
+
+
+
+  function init(item) {
+       window.shades = item.getItems({
+          name: /^Shade/
+      });
+      for (var i = 0; i < shades.length; i++) {
+          var shape = shades[i];
+          shape.strokeWidth = 0;
+
+          shape.fillColor = {
+            gradient : {
+              stops : ['white', 'black']
+            },
+            origin: shape.position,
+            destination:middle
+          }
+        };
+          // var copy = shape.clone();
+          // copy.opacity = 0.5;
+          console.log(shape.fillColor);
+          shape.on('mousemove', onmousemove);
+      }
+
+      function onmousemove(event){
+        for (var i = 0; i < shades.length; i++) {
+          shades[i].fillColor = {
+            gradient : {
+              stops : ['white', 'black']
+            },
+            origin:shades[i].position,
+            destination:event.point
+          }
+
+        };
+
+      }
+
+//main squares
+
+
+
+
+
+
+
+function onclik(event) {
+
+
+  this.on('frame', function anim(event){
+
+  })
+
+}
+
+//main rectangles
+
+
+
+  </script>
+</head>
+<body>
+  <canvas id="canvas" width="1080" height="1620"></canvas>
+  <img src="noise.png">
+</body>
+</html>

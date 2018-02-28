@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Interpolation</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script type="text/javascript" src="assets/js/paper-full.js"></script>
+<script type="text/paperscript" canvas="canvas">
+
+var mousePosX = 0;
+var mousePosY = 0;
+
+var layer = new Layer;
+
+var path1 = new Path.Circle({
+	center: view.center,
+	radius: 400,
+	strokeWidth : 10,
+  opacity: 0.4,
+
+
+});
+
+
+
+var group = new Group([path1, path1.clone(), path1.clone()]);
+group.children[0].strokeColor = 'yellow';
+group.children[1].strokeColor = 'green';
+group.children[2].strokeColor = 'red';
+
+group.children[1].rotate(120);
+group.children[2].rotate(240);
+
+
+
+var aGroup = new Group([group, group.clone(), group.clone(), group.clone(), group.clone(), group.clone()]);
+// aGroup.children[5].visible = false;
+
+ for (var i = 0, l = aGroup.children.length; i < l; i++){
+	 	var group = aGroup.children[i];
+		// group.applyMatrix = false;
+	  group.scale(i / l + 0.1);
+		 for(var j = 0, ll = group.children.length; j < ll; j++) {
+			 	var path = group.children[j];
+
+			 	path.dashArray = [path.length/15, path.length/3];
+		 }
+ }
+
+var bGroup = aGroup.clone()
+bGroup.strokeWidth=2;
+
+function onMouseMove(event){
+
+    mousePosX = event.point.x;
+    mousePosY = event.point.y;
+
+}
+
+function onFrame(event) {
+
+    for (var i=0; i< aGroup.children.length; i++){
+			var vitesse = i/10+1;
+    aGroup.children[i].rotate(vitesse  , view.center)
+    aGroup.children[i].children[0].rotate(i+1 , view.center)
+    aGroup.children[i].children[1].rotate(i+1.1 , view.center)
+    aGroup.children[i].children[2].rotate(i+1.2, view.center)
+		bGroup.children[i].rotate(vitesse , view.center)
+		bGroup.children[i].children[0].rotate(-i+1, view.center)
+		bGroup.children[i].children[1].rotate(-i+1.1 , view.center)
+		bGroup.children[i].children[2].rotate(-i+1.2, view.center)
+
+
+		}
+		for (var i=0; i< 5; i++){
+    aGroup.children[i].children[0].rotate((-(mousePosX)/2)/400, view.center)
+		group.children[1].rotate(-(mousePosX/400) , view.center)
+			group.children[2].rotate((mousePosX/400) , view.center)
+    aGroup.children[i].children[1].rotate(-(mousePosX/80) , view.center)
+    aGroup.children[i].children[2].rotate(mousePosX/80, view.center)
+
+		bGroup.children[i].children[0].rotate((-(mousePosX)/2)/400, view.center)
+
+    bGroup.children[i].children[1].rotate(-(mousePosX/80) , view.center)
+    bGroup.children[i].children[2].rotate(mousePosX/80, view.center)
+	}
+
+		aGroup.strokeWidth = mousePosY/10;
+		bGroup.strokeWidth = mousePosY/300;
+}
+
+project.importSVG('assets/res/ws.svg',{
+	onLoad: init,
+});
+
+function init (item) {
+	item.position.x = 540;
+	item.position.y = 660;
+	item.scale(2);
+	console.log(item)
+}
+
+
+
+</script>
+</head>
+<body>
+    <canvas id="canvas" width="1080" height="1620"></canvas>
+</body>
+</html>

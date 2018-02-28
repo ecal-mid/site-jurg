@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Musica viva</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script type="text/javascript" src="assets/js/paper-full.js"></script>
+<script type="text/javascript" src="assets/js/TweenMax.min.js"></script>
+<script type="text/javascript" src="assets/js/paper-tween.js"></script>
+<!-- <script type="text/javascript" src="assets/js/matter.js" ></script> -->
+<script type="text/javascript" src="assets/js/howler.js" ></script>
+<script type="text/paperscript" canvas="canvas">
+
+//setting.applyMatrix = false;
+
+new Path.Rectangle({
+		rectangle: view.bounds,
+		fillColor: 'white'
+	});
+
+var violonBas = new Howl({
+  src: ['assets/sons/violonBas2.wav']
+});
+
+var violonHaut = new Howl({
+  src: ['assets/sons/violonHaut.wav']
+});
+
+var harpeHaut = new Howl({
+  src: ['assets/sons/harpeHaut.wav']
+});
+
+var harpeBas = new Howl({
+  src: ['assets/sons/harpeBas.wav']
+});
+
+var cymbaleBas = new Howl({
+  src: ['assets/sons/cymbaleBas.wav']
+});
+
+var cymbaleHaut = new Howl({
+  src: ['assets/sons/cymbaleHaut.wav']
+});
+
+var pianoBas = new Howl({
+  src: ['assets/sons/pianoBas2.wav']
+});
+
+var pianoHaut = new Howl({
+  src: ['assets/sons/pianoHaut2.wav']
+});
+
+project.importSVG('assets/text.svg', {
+     expandShapes: true,
+     onLoad: init
+});
+
+
+function init(item) {
+  var bigCircle =  createCircle([1020, 100], 700, 200, 730, 1, 1,  pianoHaut, pianoBas, 1, 'easeInOutQuad');
+	var mediumCircle = createCircle([280, 760], 260, 170, 310, 1, 1, harpeHaut, harpeBas, 1, 'easeInOutQuart');
+  var smallCircle = createCircle([590, 1030], 122, 20, 160, 1, 1, violonHaut, violonBas, 1, 'easeInOutQuart');
+  var verySmallCircle = createCircle([730, 930], 45, 10, 100, 1, 1, cymbaleHaut, cymbaleHaut, 1, 'easeInOutCubic');
+
+  item.removeChildren(0, 1);
+  //item.position = view.center;
+  //item.scale(view.bounds.width / item.bounds.width, view.bounds.height / item.bounds.height);
+
+  var paragraphe1 = item.getItem({ name: 'paragraphe1' });
+  paragraphe1.position.y = 1450;
+  paragraphe1.onFrame = function() {
+    // this.position.x += Math.random()*0.1;
+    // this.position.y += Math.random()*0.2;
+  }
+	//doWorm(paragraphe1);
+
+  var paragraphe2 = item.getItem({ name: 'paragraphe2' });
+  paragraphe2.position.y = 1450;
+  paragraphe2.onFrame = function() {
+    // this.position.x += Math.random()*0.1;
+    // this.position.y += Math.random()*0.2;
+  }
+
+  var paragraphe3 = item.getItem({ name: 'paragraphe3' });
+  paragraphe3.position.y = 1535;
+  paragraphe3.onFrame = function() {
+    // this.position.x += Math.random()*0.1;
+    // this.position.y += Math.random()*0.2;
+  }
+
+	var isMouseOver;
+  var musicaViva = item.getItem({ name: 'musicaViva' });
+  musicaViva.position.y = 1335;
+  musicaViva.onMouseEnter = function(event) {
+		    //circle.position += 20;
+				isMouseOver = true;
+				console.log("ok");
+				musicaViva.startStroke = 10;
+				musicaViva.incStroke = 2;
+				musicaViva.lengthStroke = 7;
+
+				musicaViva.strokeColor = 'black';
+				musicaViva.fillColor = 'white';
+				musicaViva.strokeWidth = 2;
+  }
+
+	musicaViva.onFrame = function(event){
+		if (isMouseOver) {
+			//console.log(isMouseOver)
+			doWorm(musicaViva);
+		}
+	}
+
+	musicaViva.onMouseLeave = function(event) {
+				//  smallCircle.position += 20;
+				isMouseOver = false;
+				musicaViva.fillColor = "black";
+				musicaViva.strokeColor = "white";
+				musicaViva.strokeWidth = 0;
+				// doNotWorm(musicaViva);
+	}
+};
+
+function doWorm(musica) {
+	var paths = musica.getItems({
+		class: Path
+	});
+
+	for (var i = 0; i < paths.length; i++) {
+		var path = paths[i];
+		path.onFrame = function() {
+		    setWorm(this, musica.startStroke, musica.lengthStroke);
+		    musica.startStroke += musica.incStroke;
+		    musica.lengthStroke += 1;
+		}
+	}
+}
+
+function doNotWorm(musica) {
+	musica.strokeColor = 'black';
+	musica.fillColor = 'white';
+	// pathPara.scale(3);
+	musica.strokeWidth = 1;
+	musica.strokeCap = 'round';
+
+	//var start = 0;
+	var start = 10;
+	var inc = 2;
+
+	var paths = musica.getItems({
+		class: Path
+	});
+
+	for (var i = 0; i < paths.length; i++) {
+		var path = paths[i];
+		path.onFrame = function() { //musica.children[i].onFrame = function()
+		    setWorm(this, start, length);
+		    start += inc;
+		    length -= 1;
+		}
+	}
+}
+
+function setWorm(path, start, length) {
+    path.dashArray = [length, path.length - length];
+    path.dashOffset = -start;
+}
+
+function createCircle(position, radius, valMin, valMax, duration, dispearDuration, sound1, sound2, volume, ease) {
+  var circle = new Shape.Circle({
+    fillColor: 'black',
+    center: position,
+    radius: 0,
+  });
+
+  circle.tweenTo(duration, {
+    radius: radius,
+    ease: ease
+  });
+
+  var isMouseOver = false;
+  var decreasing = false;
+  var isSplitting = false;
+  var soundId1, soundId2;
+
+  function stopSound1() {
+    if (soundId1) {
+      sound1.stop(soundId1);
+      soundId1 = 0;
+    }
+  }
+
+  function stopSound2() {
+    if (soundId2) {
+      sound2.stop(soundId2);
+      soundId2 = 0;
+    }
+  }
+
+  function playSound() {
+    if (decreasing) {
+      soundId2 = sound2.play();
+      sound2.volume(volume, soundId2);
+      //stopSound1();
+    } else {
+      soundId1 = sound1.play();
+      sound1.volume(volume, soundId1);
+      //stopSound2();
+    }
+  }
+
+  function getDuration(duration, radius) {
+    return duration * Math.abs((circle.radius - radius) / (valMax - valMin));
+  }
+
+  function playAnimation() {
+    var radius;
+    if (decreasing) {
+      radius = valMin;
+    } else {
+      radius = valMax;
+    }
+    circle.tweenTo(getDuration(duration, radius), {
+      radius: radius,
+      ease: ease
+    });
+  }
+
+  circle.onMouseEnter = function(event) {
+      isMouseOver = true;
+      playAnimation();
+      playSound();
+  };
+
+  circle.onMouseLeave = function(event) {
+      isMouseOver = false;
+      // stopSound1();
+      // stopSound2();
+  };
+
+  circle.onFrame = function() {
+    if (isMouseOver && !isSplitting) {
+        if (this.radius >= valMax) {
+          decreasing = true;
+          playAnimation();
+          playSound();
+        } else if(this.radius <= valMin) {
+          decreasing = false;
+          playAnimation();
+          playSound();
+        }
+    }
+  };
+
+  circle.onClick = function(event) {
+		var pos = this.position;
+		var factor = 0.7;
+    var rad = radius * factor;
+
+		var direction = view.center - pos;
+		direction.length = 1.5;
+		direction.angle += (Math.random() - 0.5) * 90;
+
+		/*
+    var direction = Point.random() - 0.5;
+    direction = direction.normalize(2);
+		*/
+
+    var pos1 = pos + direction * rad;
+    var pos2 = pos - direction * rad;
+
+    if (pos1.x>=view.bounds ) {
+      pos1.x = pos1.x * -10;
+    }
+    if (pos1.y>=view.bounds ) {
+      pos1.y = pos1.y * -10;
+    }
+    if (pos2.x>=view.bounds) {
+      pos2.x = pos2.x * -10;
+    }
+    if (pos2.y>=view.bounds) {
+      pos2.y = pos2.y * -10;
+    }
+    isSplitting = true;
+		var dur = getDuration(dispearDuration, 0);
+    var circle1 = createCircle(pos, rad, valMin * factor, valMax * factor, duration, dispearDuration * (factor / 2), sound1, sound2, volume * factor);
+    var circle2 = createCircle(pos, rad, valMin * factor, valMax * factor, duration, dispearDuration * (factor / 2), sound1, sound2, volume * factor);
+
+    this.tweenTo(dur, {
+      radius: 1,
+      ease: ease
+    }).then(function() {
+      this.remove();
+    });
+
+		circle1.tweenTo(dur, {
+			position: [pos1.x, pos1.y],
+			ease: ease
+		});
+
+		circle2.tweenTo(dur, {
+			position: [pos2.x, pos2.y],
+			ease: ease
+		});
+
+		// sound1.stop();
+    // sound2.stop();
+  };
+
+
+  return circle;
+}
+
+</script>
+</head>
+<body style="background-color:#ddd , cursor : none;">
+    <canvas id="canvas" width="1080" height="1620" hidpi="false"></canvas>
+</body>
+</html>

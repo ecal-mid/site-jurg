@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Moving Posters</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script type="text/javascript" src="assets/js/paper-full.js"></script>
+<script type="text/paperscript" canvas="canvas">
+
+var mousePosX = 0;
+var mousePosY = 0;
+
+function onMouseMove(event){
+mousePosX = event.point.x;
+mousePosY = event.point.y;
+
+}
+
+project.importSVG('assets/svg/text3.svg', {
+    onLoad: init
+});
+
+function init(item){
+	new Layer(item);
+	item.position.x = 544;
+	item.position.y = 824;
+	item.opacity = 0.4;
+	//console.log(item);
+}
+
+var tileX = 10;
+var tileY = 15;
+var gridX = 40;
+var gridY = 40;
+var offsetX = window.innerWidth/3;
+var offsetY = window.innerHeight * -0.5;
+
+var layer = new Layer();
+
+for (var j = 0; j < tileY ; j++ ){
+	for (var i = 0 ; i < tileX; i++ ){
+		var x = (i - j) * gridX * 4;
+		var y = (i + j) * gridY * 4;
+		var path = new Path.Rectangle([x+offsetX,y+offsetY],220)
+		path.fillColor = new Color(0.95);
+		path.opacity = 1;
+
+		path.strokeColor = new Color('grey');
+		path.strokeWidth = 1;
+
+		/*path.hasShadow(false);
+		path.shadowColor = new Color(i/tileY*2),
+    path.shadowBlur = 0,
+    path.shadowOffset = new Point([800, offsetY]);
+*/
+		path.rotate(45);
+		path.data.x = path.position.x;
+		path.data.y = path.position.y;
+		layer.addChild(path);
+	}
+}
+
+
+//path.onMouseDrag = function(event) {
+  //  path.position += event.delta;
+//}
+view.onFrame = function(event){
+	for(var i = 0 ; i < layer.children.length ; i++){
+	var item = layer.children[i];
+	item.position.y = item.data.y + Math.tan(event.count / 60  + (i/600)) * 100 +mousePosY*3;
+
+	}
+	console.log(event.point);
+}
+
+</script>
+</head>
+<body>
+    <canvas id="canvas" width="1080" height="1620" hidpi="off"></canvas>
+</body>
+</html>

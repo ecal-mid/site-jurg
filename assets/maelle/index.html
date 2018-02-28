@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>BMUNARI</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script type="text/javascript" src="assets/js/TweenMax.min.js"></script>
+<script type="text/javascript" src="assets/js/paper-full.js"></script>
+<script type="text/javascript" src="assets/js/paper-tween.js"></script>
+<script type="text/paperscript" canvas="canvas">
+
+
+var path = new Path.Rectangle({
+    rectangle: view.bounds,
+    fillColor: 'white'
+})
+
+var items;
+var angle = 360 ;
+
+
+function moveEye(eye) {
+  if (eye.animateCount) {
+    eye.animateCount--;
+    var dest;
+    if (eye.animateCount) {
+      dest = eye.originalPosition + (Point.random() - 0.5) * 30;
+    } else {
+      dest = eye.originalPosition;
+    }
+    eye.tweenTo(Math.random() * 0.5, {
+      position: [dest.x, dest.y]
+    }).then(function() {
+      moveEye(eye);
+    });
+  }
+}
+
+function startEye(eye) {
+  if (!eye.animateCount) {
+    eye.animateCount = Math.ceil(Math.random() * 10);
+    moveEye(eye);
+  }
+}
+
+
+project.importSVG('assets/svg/FaceOk.svg', function(item, svg) {
+  var faces = item.getItems({ name: /^g/ });
+  faces.forEach(function(face, i) {
+    face.pivot = face.position;
+    face.onClick = zoomInOut;
+    face.zoomLevel = view.viewSize.width/ face.bounds.width;
+    var eye = face.getItem({ name: /^eye/ });
+    var mouth = face.getItem({ name: /^mouth/ });
+    if(eye) {
+      eye.originalPosition =  eye.position;
+    }
+
+    if(mouth) {
+      mouth.applyMatrix = false;
+      mouth.onMouseMove = function(event) {
+      mouth.onFrame = function(event) {
+        this.scaling = [
+          Math.sin(event.count / 5)/4 + 1,
+          Math.sin(event.count / 10)/4 + 1
+        ];
+      }
+    }
+    }
+    face.onMouseMove = function(event) {
+      face.onFrame = function(event) {
+      if (eye && Math.random() < 0.01) {
+        //this.rotate(45);
+        startEye(eye);
+      }
+    }
+    }
+  })
+});
+
+var zoomed = false;
+var center = view.center;
+function zoomInOut() {
+  if (zoomed) {
+      TweenMax.to(view, 1, {
+          zoom: 1,
+          center: [center.x, center.y],
+          ease: 'easeInOutCubic'
+      });
+      zoomed = false;
+  } else {
+      var pos = this.position;
+      TweenMax.to(view, 1, {
+          center: [pos.x, pos.y],
+          zoom: this.zoomLevel/1.2,
+          ease: 'easeInOutCubic'
+      });
+      zoomed = true;
+  }
+}
+
+
+</script>
+</head>
+<body style="background-color: black;">
+  <!-- <canvas id="canvas" resize></canvas> -->
+  <canvas id="canvas" width="1080" height="1620" hidpi="off"></canvas>
+</body>
+</html>
